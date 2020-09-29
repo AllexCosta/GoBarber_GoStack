@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import AuthenticateUserService from '../services/AuthenticateUserServices';
+import UserMap from '../mappers/UserMap';
 
 const sessionsRouter = Router();
 
@@ -10,12 +11,14 @@ sessionsRouter.post('/', async (request, response) => {
 
     const authenticateUser = new AuthenticateUserService();
 
-    const { user } = authenticateUser.execute({
+    const { user, token } = await authenticateUser.execute({
       email,
       password,
     });
 
-    return response.json({ user });
+    const mappedUser = UserMap.toDTO(user);
+
+    return response.json({ mappedUser, token });
   } catch (err) {
     return response.status(400).json({ error: err.message });
   }
